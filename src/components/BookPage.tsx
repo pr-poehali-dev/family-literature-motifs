@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Book } from "@/data/booksData";
 import { QuizResult } from "@/hooks/useProgress";
 import Icon from "@/components/ui/icon";
+import GuideTab from "@/components/GuideTab";
 
 interface BookPageProps {
   book: Book;
@@ -9,7 +11,11 @@ interface BookPageProps {
   onStartQuiz: () => void;
 }
 
+type Tab = "contents" | "guide";
+
 const BookPage = ({ book, result, onBack, onStartQuiz }: BookPageProps) => {
+  const [tab, setTab] = useState<Tab>("contents");
+
   const scorePercent = result
     ? Math.round((result.score / result.total) * 100)
     : null;
@@ -41,12 +47,12 @@ const BookPage = ({ book, result, onBack, onStartQuiz }: BookPageProps) => {
       </header>
 
       {/* Hero */}
-      <section className="hero-bg text-white px-6 py-16 md:py-20">
+      <section className="hero-bg text-white px-6 py-14 md:py-18">
         <div className="max-w-5xl mx-auto relative z-10 animate-fade-in">
-          <p className="font-sans text-xs tracking-[0.3em] uppercase text-gold/80 mb-4">
+          <p className="font-sans text-xs tracking-[0.3em] uppercase text-gold/80 mb-3">
             {book.genre} · {book.year}
           </p>
-          <h1 className="font-sc text-4xl md:text-6xl text-white leading-tight mb-3">
+          <h1 className="font-sc text-4xl md:text-5xl text-white leading-tight mb-2">
             {book.title}
           </h1>
           <p className="font-serif text-lg text-white/55 italic">
@@ -55,39 +61,71 @@ const BookPage = ({ book, result, onBack, onStartQuiz }: BookPageProps) => {
         </div>
       </section>
 
-      <main className="max-w-5xl mx-auto px-6 py-12">
+      <main className="max-w-5xl mx-auto px-6 py-10">
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Left */}
-          <div className="md:col-span-2 space-y-6">
-            <div className="book-card p-6 animate-fade-in stagger-1">
-              <h2 className="font-sc text-lg text-ink tracking-wide mb-3 flex items-center gap-2">
-                <span className="text-gold">✦</span> О произведении
-              </h2>
-              <p className="font-serif text-base text-ink/80 leading-relaxed">
-                {book.description}
-              </p>
+
+          {/* Left — tabs */}
+          <div className="md:col-span-2">
+            {/* Tab switcher */}
+            <div className="flex gap-1 bg-secondary rounded-xl p-1 mb-6 w-fit">
+              {(
+                [
+                  { key: "contents", label: "Содержание", icon: "BookOpen" },
+                  { key: "guide",    label: "Методичка ЕГЭ", icon: "GraduationCap" },
+                ] as const
+              ).map(({ key, label, icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setTab(key)}
+                  className={`flex items-center gap-2 font-sans text-sm font-semibold px-4 py-2 rounded-lg transition-all ${
+                    tab === key
+                      ? "bg-white text-ink shadow-sm"
+                      : "text-ink/50 hover:text-ink"
+                  }`}
+                >
+                  <Icon name={icon} size={14} />
+                  {label}
+                </button>
+              ))}
             </div>
 
-            <div className="book-card p-6 animate-fade-in stagger-2">
-              <h2 className="font-sc text-lg text-ink tracking-wide mb-4 flex items-center gap-2">
-                <span className="text-gold">✦</span> Содержание
-              </h2>
-              <div className="space-y-0.5">
-                {book.chapters.map((chapter, i) => (
-                  <div
-                    key={i}
-                    className="flex items-baseline gap-3 py-2.5 border-b border-black/5 last:border-0"
-                  >
-                    <span className="font-sans text-xs font-bold text-gold/70 w-5 text-right flex-shrink-0">
-                      {i + 1}
-                    </span>
-                    <span className="font-serif text-sm text-ink/75 leading-snug flex-1">
-                      {chapter}
-                    </span>
+            {/* Contents tab */}
+            {tab === "contents" && (
+              <div className="space-y-5">
+                <div className="book-card p-6 animate-fade-in stagger-1">
+                  <h2 className="font-sc text-lg text-ink tracking-wide mb-3 flex items-center gap-2">
+                    <span className="text-gold">✦</span> О произведении
+                  </h2>
+                  <p className="font-serif text-base text-ink/80 leading-relaxed">
+                    {book.description}
+                  </p>
+                </div>
+
+                <div className="book-card p-6 animate-fade-in stagger-2">
+                  <h2 className="font-sc text-lg text-ink tracking-wide mb-4 flex items-center gap-2">
+                    <span className="text-gold">✦</span> По главам
+                  </h2>
+                  <div className="space-y-0.5">
+                    {book.chapters.map((chapter, i) => (
+                      <div
+                        key={i}
+                        className="flex items-baseline gap-3 py-2.5 border-b border-black/5 last:border-0"
+                      >
+                        <span className="font-sans text-xs font-bold text-gold w-5 text-right flex-shrink-0">
+                          {i + 1}
+                        </span>
+                        <span className="font-serif text-sm text-ink/75 leading-snug flex-1">
+                          {chapter}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Guide tab */}
+            {tab === "guide" && <GuideTab guide={book.guide} />}
           </div>
 
           {/* Right — quiz card */}
@@ -127,12 +165,26 @@ const BookPage = ({ book, result, onBack, onStartQuiz }: BookPageProps) => {
                 </div>
               )}
 
-              <button onClick={onStartQuiz} className="btn-primary w-full justify-center">
+              <button
+                onClick={onStartQuiz}
+                className="btn-primary w-full justify-center"
+              >
                 <Icon name="PenLine" size={14} />
                 {scorePercent !== null ? "Пройти ещё раз" : "Начать викторину"}
               </button>
+
+              {scorePercent === null && (
+                <button
+                  onClick={() => setTab("guide")}
+                  className="btn-outline w-full justify-center mt-2"
+                >
+                  <Icon name="GraduationCap" size={14} />
+                  Открыть методичку
+                </button>
+              )}
             </div>
           </div>
+
         </div>
       </main>
     </div>
