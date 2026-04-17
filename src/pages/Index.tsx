@@ -8,6 +8,14 @@ import Icon from "@/components/ui/icon";
 
 type View = "home" | "book" | "quiz" | "progress";
 
+const genreBadge: Record<string, { cls: string; emoji: string }> = {
+  "Роман-эпопея":       { cls: "badge-novel",  emoji: "📖" },
+  "Роман в стихах":     { cls: "badge-poem",   emoji: "✍️" },
+  "Пьеса":              { cls: "badge-play",   emoji: "🎭" },
+  "Психологический роман":{ cls: "badge-psycho",emoji: "🧠" },
+  "Мистический роман":  { cls: "badge-mystic", emoji: "🔮" },
+};
+
 const Index = () => {
   const [view, setView] = useState<View>("home");
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
@@ -22,18 +30,16 @@ const Index = () => {
     setSelectedBookId(bookId);
     setView("book");
   };
-
   const openQuiz = (bookId: string) => {
     setSelectedBookId(bookId);
     setView("quiz");
   };
-
   const goHome = () => {
     setView("home");
     setSelectedBookId(null);
   };
 
-  if (view === "book" && selectedBook) {
+  if (view === "book" && selectedBook)
     return (
       <BookPage
         book={selectedBook}
@@ -42,9 +48,8 @@ const Index = () => {
         onStartQuiz={() => openQuiz(selectedBook.id)}
       />
     );
-  }
 
-  if (view === "quiz" && selectedBook) {
+  if (view === "quiz" && selectedBook)
     return (
       <QuizPage
         book={selectedBook}
@@ -60,9 +65,8 @@ const Index = () => {
         }}
       />
     );
-  }
 
-  if (view === "progress") {
+  if (view === "progress")
     return (
       <ProgressDashboard
         books={books}
@@ -72,27 +76,26 @@ const Index = () => {
         onReset={resetProgress}
       />
     );
-  }
 
   return (
-    <div className="min-h-screen parchment-texture">
-      {/* Header */}
-      <header className="border-b border-gold/30 bg-parchment/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-gold text-xl">✦</span>
-            <span className="font-sc text-lg text-ink tracking-widest uppercase">
-              Литературная сокровищница
+    <div className="min-h-screen bg-parchment">
+      {/* ── Navbar ── */}
+      <header className="sticky top-0 z-20 bg-ink/95 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="text-gold text-base">✦</span>
+            <span className="font-sc text-base text-white/90 tracking-widest uppercase">
+              Лит&nbsp;Кабинет
             </span>
           </div>
           <button
             onClick={() => setView("progress")}
-            className="flex items-center gap-2 text-sm text-gold-dark hover:text-gold transition-colors"
+            className="flex items-center gap-2 font-sans text-sm text-white/60 hover:text-gold transition-colors"
           >
-            <Icon name="BarChart3" size={16} />
-            <span className="font-sans">Мой прогресс</span>
+            <Icon name="BarChart3" size={15} />
+            <span>Прогресс</span>
             {totalProgress.completed > 0 && (
-              <span className="bg-gold text-ink text-xs px-2 py-0.5 rounded-full font-sans font-semibold">
+              <span className="bg-gold text-ink text-xs px-2 py-0.5 rounded-full font-semibold">
                 {totalProgress.completed}/{books.length}
               </span>
             )}
@@ -100,171 +103,174 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        {/* Hero */}
-        <div className="text-center mb-16 animate-fade-in">
-          <p className="font-sans text-xs tracking-[0.3em] uppercase text-gold mb-4">
-            Интерактивный учебный материал
-          </p>
-          <h1 className="font-sc text-5xl md:text-6xl text-ink mb-4 leading-tight">
-            Русская классическая
-            <br />
-            <span className="gold-shimmer">литература</span>
-          </h1>
-          <div className="ornament-line my-6 max-w-xs mx-auto">
-            <span className="text-gold text-sm">✦</span>
-          </div>
-          <p className="font-serif text-lg text-ink/70 max-w-xl mx-auto leading-relaxed">
-            Исследуйте великие произведения русской литературы, изучайте
-            содержание и проверяйте свои знания в интерактивных викторинах
-          </p>
-        </div>
-
-        {/* Stats bar */}
-        {totalProgress.completed > 0 && (
-          <div className="classical-border rounded-sm p-4 mb-10 animate-fade-in bg-parchment-dark/50">
-            <div className="flex flex-wrap gap-6 justify-center font-sans text-sm">
-              <div className="flex items-center gap-2 text-ink/70">
-                <Icon name="BookOpen" size={15} className="text-gold" />
-                <span>Прочитано: <strong className="text-ink">{totalProgress.visited}</strong></span>
-              </div>
-              <div className="flex items-center gap-2 text-ink/70">
-                <Icon name="CheckCircle" size={15} className="text-gold" />
-                <span>Тестов сдано: <strong className="text-ink">{totalProgress.completed}</strong></span>
-              </div>
-              <div className="flex items-center gap-2 text-ink/70">
-                <Icon name="Star" size={15} className="text-gold" />
-                <span>Средний балл: <strong className="text-ink">{totalProgress.avgScore}%</strong></span>
-              </div>
+      {/* ── Hero ── */}
+      <section className="hero-bg text-white px-6 py-20 md:py-28">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="animate-fade-in">
+            <p className="font-sans text-xs tracking-[0.35em] uppercase text-gold/80 mb-5">
+              Интерактивный учебный материал · ЕГЭ и ОГЭ
+            </p>
+            <h1 className="font-sc text-5xl md:text-7xl leading-tight mb-6">
+              Русская<br />
+              <span className="gold-shimmer">классика</span>
+            </h1>
+            <p className="font-serif text-lg md:text-xl text-white/65 max-w-lg leading-relaxed mb-10">
+              Оглавления, методички, викторины и трекинг знаний —
+              всё что нужно для успешного ЕГЭ по литературе
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => document.getElementById("toc")?.scrollIntoView({ behavior: "smooth" })}
+                className="btn-primary"
+              >
+                <Icon name="BookOpen" size={15} />
+                Начать изучение
+              </button>
+              <button
+                onClick={() => setView("progress")}
+                className="btn-outline !text-white/70 !border-white/20 hover:!text-gold hover:!border-gold/50 hover:!bg-white/5"
+              >
+                <Icon name="BarChart3" size={15} />
+                Мой прогресс
+              </button>
             </div>
           </div>
-        )}
 
-        {/* Table of Contents */}
-        <div className="mb-8">
-          <h2 className="ornament-line font-sc text-2xl text-ink tracking-wider mb-10">
-            Оглавление
-          </h2>
+          {/* Floating stats */}
+          {totalProgress.completed > 0 && (
+            <div className="mt-14 flex flex-wrap gap-4 animate-fade-in stagger-3">
+              {[
+                { icon: "BookOpen",    label: "Открыто",    val: totalProgress.visited },
+                { icon: "CheckCircle", label: "Сдано",       val: totalProgress.completed },
+                { icon: "Percent",     label: "Средний балл",val: `${totalProgress.avgScore}%` },
+              ].map((s, i) => (
+                <div key={i} className="flex items-center gap-2 bg-white/8 border border-white/10 rounded-xl px-4 py-2.5">
+                  <Icon name={s.icon as "BookOpen"} size={14} className="text-gold" />
+                  <span className="font-sans text-xs text-white/50">{s.label}</span>
+                  <span className="font-sc text-sm text-white font-bold">{s.val}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
-          <div className="space-y-4">
-            {books.map((book, index) => {
-              const result = getBookResult(book.id);
-              const isVisited = progress.visitedBooks.includes(book.id);
-              const scorePercent = result
-                ? Math.round((result.score / result.total) * 100)
-                : null;
+      {/* ── Table of contents ── */}
+      <main id="toc" className="max-w-5xl mx-auto px-6 py-14">
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <p className="font-sans text-xs tracking-[0.25em] uppercase text-gold mb-1">
+              {books.length} произведений
+            </p>
+            <h2 className="font-sc text-3xl text-ink">Оглавление</h2>
+          </div>
+          <span className="font-sans text-xs text-ink/35 hidden md:block">
+            Нажмите на произведение, чтобы открыть
+          </span>
+        </div>
 
-              return (
-                <div
-                  key={book.id}
-                  className={`corner-ornament classical-border rounded-sm bg-parchment hover:bg-parchment-dark/60 transition-all duration-300 group animate-fade-in stagger-${Math.min(index + 1, 5)}`}
-                >
-                  <div className="p-6">
-                    <div className="flex items-start gap-5">
-                      {/* Number */}
-                      <div className="flex-shrink-0 w-10 h-10 border border-gold/40 flex items-center justify-center rounded-sm">
-                        <span className="font-sc text-gold text-base font-bold">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                      </div>
+        <div className="space-y-4">
+          {books.map((book, index) => {
+            const result      = getBookResult(book.id);
+            const isVisited   = progress.visitedBooks.includes(book.id);
+            const scorePercent = result ? Math.round((result.score / result.total) * 100) : null;
+            const badge       = genreBadge[book.genre] ?? { cls: "badge-novel", emoji: "📚" };
+            const scoreClass  = scorePercent === null ? "" : scorePercent >= 80 ? "score-great" : scorePercent >= 60 ? "score-ok" : "score-low";
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <button
-                              onClick={() => openBook(book.id)}
-                              className="font-sc text-xl text-ink group-hover:text-gold-dark transition-colors text-left hover:underline decoration-gold/40"
-                            >
-                              {book.title}
-                            </button>
-                            <p className="font-serif text-sm text-ink/60 mt-0.5 italic">
-                              {book.author} · {book.year} · {book.genre}
-                            </p>
-                          </div>
+            return (
+              <div
+                key={book.id}
+                className={`book-card animate-fade-in stagger-${Math.min(index + 1, 5)}`}
+              >
+                <div className="p-5 md:p-6">
+                  <div className="flex items-start gap-4">
+                    {/* Number */}
+                    <div className="num-badge">{String(index + 1).padStart(2, "0")}</div>
 
-                          {/* Status badges */}
-                          <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Main content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-3 mb-1">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                            <span className={`genre-badge ${badge.cls}`}>
+                              {badge.emoji} {book.genre}
+                            </span>
                             {isVisited && (
-                              <span className="flex items-center gap-1 text-xs font-sans text-ink/50 bg-secondary px-2 py-1 rounded-sm">
-                                <Icon name="Eye" size={11} />
-                                Открыто
+                              <span className="genre-badge" style={{background:"rgba(15,22,35,0.06)", color:"#555"}}>
+                                <Icon name="Eye" size={10} /> Открыто
                               </span>
                             )}
                             {scorePercent !== null && (
-                              <span
-                                className={`flex items-center gap-1 text-xs font-sans px-2 py-1 rounded-sm font-semibold ${
-                                  scorePercent >= 80
-                                    ? "bg-green-100 text-green-800"
-                                    : scorePercent >= 60
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-red-100 text-red-800"
-                                }`}
-                              >
-                                <Icon name="Award" size={11} />
+                              <span className={`score-pill ${scoreClass}`}>
+                                <Icon name="Award" size={10} />
                                 {scorePercent}%
                               </span>
                             )}
                           </div>
-                        </div>
-
-                        <p className="font-sans text-sm text-ink/65 mt-3 leading-relaxed line-clamp-2">
-                          {book.description}
-                        </p>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-4 mt-4">
                           <button
                             onClick={() => openBook(book.id)}
-                            className="flex items-center gap-1.5 text-sm font-sans text-gold-dark hover:text-gold transition-colors"
+                            className="font-sc text-xl md:text-2xl text-ink hover:text-gold-dark transition-colors text-left leading-snug"
                           >
-                            <Icon name="BookOpen" size={14} />
-                            Читать содержание
+                            {book.title}
                           </button>
-                          <span className="text-ink/20">·</span>
-                          <button
-                            onClick={() => openQuiz(book.id)}
-                            className="flex items-center gap-1.5 text-sm font-sans text-gold-dark hover:text-gold transition-colors"
-                          >
-                            <Icon name="PenLine" size={14} />
-                            {result ? "Пройти ещё раз" : "Начать викторину"}
-                          </button>
+                          <p className="font-serif text-sm text-ink/50 italic mt-0.5">
+                            {book.author} · {book.year}
+                          </p>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Progress bar if completed */}
-                    {result && (
-                      <div className="mt-4 pt-4 border-t border-gold/15">
-                        <div className="flex items-center justify-between text-xs font-sans text-ink/50 mb-1.5">
-                          <span>Результат викторины</span>
-                          <span>
-                            {result.score} / {result.total} вопросов
-                          </span>
-                        </div>
-                        <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                          <div
-                            className="h-full progress-fill rounded-full"
-                            style={{ width: `${scorePercent}%` }}
-                          />
-                        </div>
+                      <p className="font-sans text-sm text-ink/60 mt-2 leading-relaxed line-clamp-2">
+                        {book.description}
+                      </p>
+
+                      {/* Actions row */}
+                      <div className="flex flex-wrap items-center gap-3 mt-4">
+                        <button
+                          onClick={() => openBook(book.id)}
+                          className="btn-primary !py-2 !px-4 !text-xs"
+                        >
+                          <Icon name="BookOpen" size={13} />
+                          Содержание
+                        </button>
+                        <button
+                          onClick={() => openQuiz(book.id)}
+                          className="btn-outline !py-2 !px-4 !text-xs"
+                        >
+                          <Icon name="PenLine" size={13} />
+                          {result ? "Пройти снова" : "Викторина"}
+                        </button>
+                        <span className="font-sans text-xs text-ink/30 ml-auto hidden md:block">
+                          {book.quiz.questions.length} вопросов
+                        </span>
                       </div>
-                    )}
+
+                      {/* Progress bar */}
+                      {result && (
+                        <div className="mt-4 pt-4 border-t border-black/5">
+                          <div className="flex justify-between text-xs font-sans text-ink/40 mb-1.5">
+                            <span>Результат теста</span>
+                            <span>{result.score}/{result.total} верных</span>
+                          </div>
+                          <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                            <div className="h-full progress-fill rounded-full" style={{ width: `${scorePercent}%` }} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
-
-        {/* Footer ornament */}
-        <div className="ornament-line mt-16 mb-4">
-          <span className="text-gold text-xs">◆ ◆ ◆</span>
-        </div>
-        <p className="text-center font-serif text-sm text-ink/40 italic">
-          Читайте. Размышляйте. Познавайте.
-        </p>
       </main>
+
+      {/* ── Footer ── */}
+      <footer className="border-t border-black/6 py-8 text-center">
+        <p className="font-serif text-sm text-ink/30 italic">
+          Читайте · Размышляйте · Побеждайте ЕГЭ
+        </p>
+      </footer>
     </div>
   );
 };

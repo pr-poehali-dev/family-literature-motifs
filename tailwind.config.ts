@@ -58,13 +58,20 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				gold: {
-					DEFAULT: '#c9a84c',
-					light: '#e8c97a',
-					dark: '#8a6b2a',
+					DEFAULT: '#f0a500',
+					light: '#ffc94d',
+					dark: '#c47f00',
 				},
-				ink: '#1a1209',
-				parchment: '#f5f0e8',
-				crimson: '#8b1a1a',
+				ink: {
+					DEFAULT: '#0f1623',
+					soft: '#2a3244',
+				},
+				parchment: {
+					DEFAULT: '#fdfcf8',
+					dark: '#f2ede0',
+				},
+				crimson: '#c0392b',
+				emerald: '#0d9e6e',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

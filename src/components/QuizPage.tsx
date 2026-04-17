@@ -9,11 +9,7 @@ interface QuizPageProps {
 }
 
 type AnswerState = "idle" | "correct" | "incorrect";
-
-interface AnswerRecord {
-  selectedIndex: number;
-  state: AnswerState;
-}
+interface AnswerRecord { selectedIndex: number; state: AnswerState; }
 
 const QuizPage = ({ book, onBack, onFinish }: QuizPageProps) => {
   const { quiz } = book;
@@ -26,22 +22,14 @@ const QuizPage = ({ book, onBack, onFinish }: QuizPageProps) => {
   const currentQuestion = quiz.questions[currentIndex];
   const totalQuestions = quiz.questions.length;
   const answeredCount = Object.keys(answers).length;
-  const progressPercent = (answeredCount / totalQuestions) * 100;
-
-  const handleOptionClick = (optionIndex: number) => {
-    if (showResult) return;
-    setSelectedOption(optionIndex);
-  };
+  const progressPercent = Math.round((answeredCount / totalQuestions) * 100);
 
   const handleConfirm = () => {
     if (selectedOption === null) return;
     const isCorrect = selectedOption === currentQuestion.correctIndex;
     setAnswers((prev) => ({
       ...prev,
-      [currentQuestion.id]: {
-        selectedIndex: selectedOption,
-        state: isCorrect ? "correct" : "incorrect",
-      },
+      [currentQuestion.id]: { selectedIndex: selectedOption, state: isCorrect ? "correct" : "incorrect" },
     }));
     setShowResult(true);
   };
@@ -56,82 +44,54 @@ const QuizPage = ({ book, onBack, onFinish }: QuizPageProps) => {
     }
   };
 
-  const score = Object.values(answers).filter(
-    (a) => a.state === "correct"
-  ).length;
+  const score = Object.values(answers).filter((a) => a.state === "correct").length;
   const scorePercent = Math.round((score / totalQuestions) * 100);
 
+  /* ── Finished screen ── */
   if (isFinished) {
+    const medal = scorePercent >= 80 ? "🏆" : scorePercent >= 60 ? "📖" : "📝";
+    const scoreClass = scorePercent >= 80 ? "score-great" : scorePercent >= 60 ? "score-ok" : "score-low";
     return (
-      <div className="min-h-screen parchment-texture flex flex-col">
-        <header className="border-b border-gold/30 bg-parchment/80 sticky top-0 z-10">
-          <div className="max-w-2xl mx-auto px-6 py-4">
-            <span className="font-sc text-sm text-ink/50 tracking-widest uppercase">
-              Литературная сокровищница
-            </span>
+      <div className="min-h-screen bg-parchment flex flex-col">
+        <header className="bg-ink/95 border-b border-white/5">
+          <div className="max-w-2xl mx-auto px-6 py-3.5">
+            <span className="font-sc text-sm text-white/40 tracking-widest uppercase">Лит Кабинет</span>
           </div>
         </header>
 
         <div className="flex-1 flex items-center justify-center px-6 py-12">
-          <div className="w-full max-w-xl text-center animate-scale-in">
-            <div className="classical-border corner-ornament rounded-sm p-10 bg-parchment">
-              <div className="text-5xl mb-6">
-                {scorePercent >= 80 ? "🏆" : scorePercent >= 60 ? "📖" : "📝"}
-              </div>
+          <div className="w-full max-w-lg animate-scale-in">
+            <div className="book-card p-10 text-center">
+              <div className="text-5xl mb-5">{medal}</div>
               <p className="font-sans text-xs tracking-[0.25em] uppercase text-gold mb-2">
                 Викторина завершена
               </p>
               <h2 className="font-sc text-3xl text-ink mb-1">{book.title}</h2>
-              <p className="font-serif text-ink/60 italic mb-8">
-                {book.author}
-              </p>
+              <p className="font-serif text-ink/50 italic mb-8">{book.author}</p>
 
               <div className="ornament-line mb-8">
-                <span className="text-gold">✦</span>
+                <span className="text-gold text-sm">✦</span>
               </div>
 
-              <div className="mb-6">
-                <div className="text-5xl font-sc text-ink mb-1">
-                  {score}
-                  <span className="text-2xl text-ink/40">/{totalQuestions}</span>
-                </div>
-                <p className="font-sans text-sm text-ink/60">правильных ответов</p>
+              <div className="mb-3">
+                <span className="font-sc text-5xl text-ink">{score}</span>
+                <span className="font-sc text-2xl text-ink/30">/{totalQuestions}</span>
               </div>
+              <p className="font-sans text-sm text-ink/50 mb-4">правильных ответов</p>
 
               <div className="h-2 bg-secondary rounded-full overflow-hidden mb-3 max-w-xs mx-auto">
-                <div
-                  className="h-full progress-fill rounded-full"
-                  style={{ width: `${scorePercent}%` }}
-                />
+                <div className="h-full progress-fill rounded-full" style={{ width: `${scorePercent}%` }} />
               </div>
-              <p
-                className={`font-sans text-sm font-semibold mb-8 ${
-                  scorePercent >= 80
-                    ? "text-green-700"
-                    : scorePercent >= 60
-                    ? "text-yellow-700"
-                    : "text-red-700"
-                }`}
-              >
-                {scorePercent >= 80
-                  ? "Превосходно! Вы отлично знаете это произведение"
-                  : scorePercent >= 60
-                  ? "Хороший результат! Есть над чем работать"
-                  : "Рекомендуем перечитать произведение"}
-              </p>
+              <span className={`score-pill ${scoreClass} mb-8 inline-flex`}>
+                {scorePercent >= 80 ? "Отлично!" : scorePercent >= 60 ? "Хорошо" : "Повторите материал"} · {scorePercent}%
+              </span>
 
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={onBack}
-                  className="flex items-center gap-2 border border-gold/40 text-ink font-sans text-sm py-2.5 px-5 rounded-sm hover:bg-parchment-dark transition-colors"
-                >
+              <div className="flex gap-3 justify-center mt-6">
+                <button onClick={onBack} className="btn-outline">
                   <Icon name="BookOpen" size={14} />
                   К произведению
                 </button>
-                <button
-                  onClick={() => onFinish(score)}
-                  className="flex items-center gap-2 bg-ink text-parchment font-sans text-sm py-2.5 px-5 rounded-sm hover:bg-gold-dark transition-colors"
-                >
+                <button onClick={() => onFinish(score)} className="btn-primary">
                   <Icon name="LayoutList" size={14} />
                   В оглавление
                 </button>
@@ -143,47 +103,34 @@ const QuizPage = ({ book, onBack, onFinish }: QuizPageProps) => {
     );
   }
 
+  /* ── Quiz screen ── */
   return (
-    <div className="min-h-screen parchment-texture">
-      <header className="border-b border-gold/30 bg-parchment/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button
-            onClick={onBack}
-            className="flex items-center gap-2 text-sm font-sans text-gold-dark hover:text-gold transition-colors"
-          >
+    <div className="min-h-screen bg-parchment">
+      <header className="sticky top-0 z-20 bg-ink/95 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-2xl mx-auto px-6 py-3.5 flex items-center justify-between">
+          <button onClick={onBack} className="flex items-center gap-2 font-sans text-sm text-white/60 hover:text-gold transition-colors">
             <Icon name="ChevronLeft" size={16} />
             {book.title}
           </button>
-          <span className="font-sans text-xs text-ink/50">
+          <span className="font-sans text-xs text-white/40">
             {currentIndex + 1} / {totalQuestions}
           </span>
         </div>
-
         {/* Progress bar */}
-        <div className="h-0.5 bg-secondary">
-          <div
-            className="h-full progress-fill transition-all duration-500"
-            style={{ width: `${progressPercent}%` }}
-          />
+        <div className="h-0.5 bg-white/10">
+          <div className="h-full progress-fill transition-all duration-500" style={{ width: `${progressPercent}%` }} />
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-6 py-10">
-        {/* Quiz title */}
-        <div className="mb-8 animate-fade-in">
-          <p className="font-sans text-xs tracking-[0.25em] uppercase text-gold mb-1">
-            {quiz.title}
-          </p>
-          <h2 className="font-sc text-xl text-ink">
-            Вопрос {currentIndex + 1}
-          </h2>
+        {/* Label */}
+        <div className="mb-6 animate-fade-in">
+          <p className="font-sans text-xs tracking-[0.25em] uppercase text-gold mb-1">{quiz.title}</p>
+          <h2 className="font-sc text-2xl text-ink">Вопрос {currentIndex + 1}</h2>
         </div>
 
         {/* Question */}
-        <div
-          key={currentQuestion.id}
-          className="classical-border rounded-sm p-6 bg-parchment mb-6 animate-scale-in"
-        >
+        <div key={currentQuestion.id} className="book-card p-6 mb-5 animate-scale-in">
           <p className="font-serif text-lg text-ink leading-relaxed">
             {currentQuestion.question}
           </p>
@@ -193,43 +140,31 @@ const QuizPage = ({ book, onBack, onFinish }: QuizPageProps) => {
         <div className="space-y-3 mb-6">
           {currentQuestion.options.map((option, idx) => {
             const answer = answers[currentQuestion.id];
-            let className = "quiz-option rounded-sm p-4 bg-parchment";
-
+            let cls = "quiz-option w-full text-left flex items-start gap-3 p-4";
             if (showResult && answer) {
-              if (idx === currentQuestion.correctIndex) {
-                className += " correct";
-              } else if (
-                idx === answer.selectedIndex &&
-                answer.state === "incorrect"
-              ) {
-                className += " incorrect";
-              }
+              if (idx === currentQuestion.correctIndex) cls += " correct";
+              else if (idx === answer.selectedIndex && answer.state === "incorrect") cls += " incorrect";
             } else if (selectedOption === idx) {
-              className += " selected";
+              cls += " selected";
             }
 
             return (
               <button
                 key={idx}
-                className={`${className} w-full text-left flex items-start gap-3 animate-fade-slide stagger-${idx + 1}`}
-                onClick={() => handleOptionClick(idx)}
+                className={`${cls} animate-fade-slide stagger-${idx + 1}`}
+                onClick={() => !showResult && setSelectedOption(idx)}
                 disabled={showResult}
               >
-                <span className="flex-shrink-0 w-6 h-6 border border-gold/40 flex items-center justify-center rounded-sm text-xs font-sans text-gold-dark font-semibold mt-0.5">
+                <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-secondary flex items-center justify-center text-xs font-sans font-bold text-ink/60">
                   {String.fromCharCode(65 + idx)}
                 </span>
-                <span className="font-serif text-base text-ink leading-snug">
-                  {option}
-                </span>
+                <span className="font-serif text-base text-ink leading-snug flex-1">{option}</span>
                 {showResult && idx === currentQuestion.correctIndex && (
-                  <Icon name="Check" size={16} className="text-green-700 flex-shrink-0 mt-0.5 ml-auto" />
+                  <Icon name="Check" size={16} className="text-emerald flex-shrink-0 mt-0.5" />
                 )}
-                {showResult &&
-                  answer &&
-                  idx === answer.selectedIndex &&
-                  answer.state === "incorrect" && (
-                    <Icon name="X" size={16} className="text-red-700 flex-shrink-0 mt-0.5 ml-auto" />
-                  )}
+                {showResult && answer && idx === answer.selectedIndex && answer.state === "incorrect" && (
+                  <Icon name="X" size={16} className="text-crimson flex-shrink-0 mt-0.5" />
+                )}
               </button>
             );
           })}
@@ -237,8 +172,8 @@ const QuizPage = ({ book, onBack, onFinish }: QuizPageProps) => {
 
         {/* Explanation */}
         {showResult && (
-          <div className="bg-parchment-dark border border-gold/20 rounded-sm p-4 mb-6 animate-fade-in">
-            <p className="font-sans text-xs uppercase tracking-wider text-gold mb-2">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 animate-fade-in">
+            <p className="font-sans text-xs uppercase tracking-wider text-gold-dark font-semibold mb-1.5">
               Пояснение
             </p>
             <p className="font-serif text-sm text-ink/80 leading-relaxed">
@@ -249,28 +184,18 @@ const QuizPage = ({ book, onBack, onFinish }: QuizPageProps) => {
 
         {/* Actions */}
         <div className="flex justify-between items-center">
-          <span className="font-sans text-xs text-ink/40">
-            Правильных: {score} из {answeredCount}
+          <span className="font-sans text-xs text-ink/35">
+            Верных: {score} из {answeredCount}
           </span>
-
           {!showResult ? (
-            <button
-              onClick={handleConfirm}
-              disabled={selectedOption === null}
-              className="flex items-center gap-2 bg-ink text-parchment font-sans text-sm py-2.5 px-6 rounded-sm hover:bg-gold-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
+            <button onClick={handleConfirm} disabled={selectedOption === null} className="btn-primary">
               Подтвердить
-              <Icon name="ChevronRight" size={15} />
+              <Icon name="ChevronRight" size={14} />
             </button>
           ) : (
-            <button
-              onClick={handleNext}
-              className="flex items-center gap-2 bg-ink text-parchment font-sans text-sm py-2.5 px-6 rounded-sm hover:bg-gold-dark transition-colors"
-            >
-              {currentIndex < totalQuestions - 1
-                ? "Следующий вопрос"
-                : "Завершить"}
-              <Icon name="ChevronRight" size={15} />
+            <button onClick={handleNext} className="btn-primary">
+              {currentIndex < totalQuestions - 1 ? "Следующий" : "Завершить"}
+              <Icon name="ChevronRight" size={14} />
             </button>
           )}
         </div>
